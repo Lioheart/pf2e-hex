@@ -598,6 +598,43 @@ Hooks.once("libWrapper.Ready", () => {
     }, 'MIXED');
 });
 
+// DISTANCE FIX
+import { getHexagonalShape, convertShapeToGridPolygon, convertGridPolygonToGridPositions} from './shapes.js';
+Hooks.once("libWrapper.Ready", () => {
+    libWrapper.register('pf2e-hex', 'CONFIG.Token.objectClass.prototype.distanceTo', function(wrapped, target, opts) {
+        console.warn(target)
+        // only override logic on hexagonal grid
+        if (!canvas.grid.isHexagonal) {
+            return wrapped(target, opts);
+        }
+        if (!canvas.ready) return NaN;
+        if (this === target) return 0;
+        // get array of points to calculate min range
+        let targetPoints = [{x: target.x, y: target.y}];
+        if (target.center !== undefined && target.document !== undefined) {
+            const targetShape = getHexagonalShape(target.document.scene.grid.columns, target.document.hexagonalShape, target.document.width, target.document.height);
+            targetPoints = convertGridPolygonToGridPositions(convertShapeToGridPolygon(targetShape, target.document.scene.grid, target.center.x, target.center.y), target.document.scene.grid);
+        }
+        const thisShape = getHexagonalShape(this.document.scene.grid.columns, this.document.hexagonalShape, this.document.width, this.document.height);
+        const thisPoints = convertGridPolygonToGridPositions(convertShapeToGridPolygon(thisShape, this.document.scene.grid, this.center.x, this.center.y), this.document.scene.grid);
+        // I'll add optimizations later
+        let distance = Infinity;
+        for (const thisPoint of thisPoints) {
+            for (const targetPoint of targetPoints) {
+                const waypoints = [
+                    { x: thisPoint.x, y: thisPoint.y },
+                    { x: targetPoint.x, y: targetPoint.y },
+                ];
+                const tempDistance = this.document.scene.grid.measurePath(waypoints).distance;
+                if (tempDistance < distance) {
+                    distance = tempDistance;
+                }
+            }
+        }
+        return distance
+    }, 'MIXED');
+});
+
 // TARGET HELPER
 Hooks.on('createMeasuredTemplate', targetHelper);
 async function targetHelper(template, context, userId) {

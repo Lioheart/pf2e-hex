@@ -1,3 +1,9 @@
+# 1.7.0
+
+- Bump verified system version
+- Token
+    - `distanceTo` function fixed on hex grids
+
 # 1.6.1
 
 - Bump verified core and system versions

@@ -46,3 +46,36 @@ This module aims to enhance the use of hex grids while using the PF2e system. A 
     - (GM) `cone` internal angle can be configured (defaults to 60 degree)
     - (GM) Collision type to use for wall collision coloring and target helper check
     - (User) Target helper can be enabled or disabled
+
+### Token
+
+- Measurement
+    - Custom `distanceTo` function for correct range calculation between tokens
+
+## Not implemented
+
+### Auras
+
+I am waiting on pf2e system support for extending the aura system. PoC MR already created.
+
+### Flanking
+
+I have no current intention to implement a custom flanking detector as I don't have a generalized solution in mind yet. It is possible to still use the system flanking detector on hex grids to mixed results. I have turned off said automation and instead given PCs a custom feat that adds a `Target is Off Guard` toggle the player can check and given NPCs a custom effect that does the same.
+
+#### Feat
+
+Create a new feat, adding the following Rule Elements before adding it to the bonus feat section of all PCs. I highly suggest naming the feat.
+
+RollOption: `{"key":"RollOption","domain":"all","option":"off-guard","label":"Target is Off Guard","toggleable":true}`
+EphemeralEffect: `{"key":"EphemeralEffect","predicate":["off-guard"],"selectors":["strike-attack-roll","spell-attack-roll","strike-damage","attack-spell-damage"],"uuid":"Compendium.pf2e.conditionitems.Item.AJh5ex99aV6VTggg"}`
+
+#### Effect
+
+Create a new effect, adding the following Rule Element. You will have to remember to drop this on each NPC to add the toggle. I highly suggest naming the effect and unchecking the `Show token icon?` button to hide it from appearing.
+
+RollOption: `{"key":"RollOption","domain":"all","option":"off-guard","label":"Target is Off Guard","toggleable":true}`
+EphemeralEffect: `{"key":"EphemeralEffect","predicate":["off-guard"],"selectors":["strike-attack-roll","spell-attack-roll","strike-damage","attack-spell-damage"],"uuid":"Compendium.pf2e.conditionitems.Item.AJh5ex99aV6VTggg"}`
+
+### Large Token Drag Movement Highlighting
+
+This looks to be a native feature that v13 adds therefore I am not looking to add this feature.
